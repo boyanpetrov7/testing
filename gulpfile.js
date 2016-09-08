@@ -1,3 +1,5 @@
+var os = require('os');
+
 var gulp = require('gulp');
 var buffer = require('vinyl-buffer');
 var sourcemaps = require('gulp-sourcemaps');
@@ -5,6 +7,7 @@ var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var clean = require('gulp-clean');
 var runSequence = require('run-sequence');
+var open = require('gulp-open');
 
 gulp.task('clean', function () {
   return gulp.src('build/*', {
@@ -13,16 +16,16 @@ gulp.task('clean', function () {
 });
 
 gulp.task('move', ['clean'], function() {
-  gulp.src(['src/ui/*/*.*', 'popup.html', 'manifest.json', 'src/contentscript/*.*'])
+  gulp.src(['src/ui/*/*.*', 'popup.html', 'src/manifest.json', 'src/contentscript/*.*'])
   .pipe(gulp.dest('build'));
 });
 
 gulp.task('build-background',  function () {
-  return doBrowserify('./src/background/background.js');
+  return bundler('./src/background/background.js', 'build/');
 });
 
 gulp.task('build-popup',  function () {
-  return doBrowserify('./src/js/popup.js');
+  return bundler('./src/browseraction/popup.js', 'build/');
 });
 
 gulp.task('watch', function () {
@@ -34,15 +37,9 @@ gulp.task('build', function (callback) {
     'move',
     'build-popup',
     'build-background',
+    'refresh-extensions',
     callback);
 });
-
-function doBrowserify (entry) {
-  var bundle;
-  bundle = bundler(entry, 'build/');
-
-  return bundle;
-}
 
 function bundler (entry, dest) {
   var filename = entry.split('/').pop();
@@ -62,23 +59,16 @@ function bundler (entry, dest) {
     .pipe(gulp.dest(dest));
 }
 
-
-// function doBrowserify(entry) {
-//   var bundle;
-//   bundle = bundler(entry, './build/');
-//   var filename = entry.split('/').pop();
-
-//   browserify({
-//       entries: entry,
-//       debug: true,
-//       paths: ['./node_modules', './src']
-//     })
-//     .bundle()
-//     .pipe(source(filename))
-//     .pipe(buffer())
-//     .pipe(sourcemaps.init({
-//       loadMaps: true
-//     }))
-//     .pipe(sourcemaps.write('./'))
-//     .pipe(gulp.dest(dest));
-// }
+/* Refreshes the extensions in google chrome */
+gulp.task('refresh-extensions', function() {
+  console.log('refreshing extensions');
+  // if you're developing on a platform other than linux, you might have to fix the ternary operator below
+  var browser = os.platform() === 'linux' ? 'google-chrome': (
+    os.platform() === 'darwin' ? 'google chrome' : (
+    os.platform() === 'win32' ? 'chrome' : 'firefox'));
+  gulp.src('')
+    .pipe(open({
+      uri: 'http://reload.extensions',
+      app: browser
+    }));
+});

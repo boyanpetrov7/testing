@@ -10087,13 +10087,13 @@ $('#set-button').on('click', function(e) {
   'client': $('#client').val(),
   'product': $('#product').val()
   };
-
+ 
   // localStorage.clear();
   // localStorage.setItem('clientProductSelection', JSON.stringify(inputData));
 
   // chrome.storage.sync.set(inputData, function() {
   //     console.log('::Data saved!');
-  // });
+  // }); 
 
   chrome.runtime.sendMessage({data: inputData}, function(response) {
     console.log('::(P) Response from (BG) -> ', response.storredData);
@@ -10109,7 +10109,7 @@ $('#get-button').on('click', function(e) {
     $('#client').val(responseData.client);
     $('#product').val(responseData.product);
   });
-  
+
   // chrome.storage.sync.get(['client', 'product'], function(details) {
   //     console.log('::Data retrieved', details);
   //     $('#client').val(details.client);

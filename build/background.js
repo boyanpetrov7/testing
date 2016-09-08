@@ -112,6 +112,8 @@ module.exports = SimpleStore
 var SimpleStore = require('simple-store');
 var store = new SimpleStore();
 
+console.log(require('../common/helloworld.js')());
+
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     console.log('::(BG) request ->', request);
@@ -124,7 +126,7 @@ chrome.runtime.onMessage.addListener(
 
     if (request === 'request-data') {
       sendResponse(store.get('data'));
-    }
+    } 
 
     if (request === 'regex message') {
       sendResponse('::(BG) /regex/ was found!');
@@ -177,7 +179,13 @@ chrome.tabs.onActivated.addListener(function (tab) {
 //   chrome.notifications.create(options);
 //   });
 // });
-},{"simple-store":1}]},{},[2])
+},{"../common/helloworld.js":3,"simple-store":1}],3:[function(require,module,exports){
+function helloWorld() {
+  return 'Hello World';
+}
+
+module.exports = helloWorld;
+},{}]},{},[2])
 
 
 //# sourceMappingURL=background.js.map

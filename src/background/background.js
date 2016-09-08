@@ -3,6 +3,8 @@
 var SimpleStore = require('simple-store');
 var store = new SimpleStore();
 
+console.log(require('../common/helloworld.js')());
+
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     console.log('::(BG) request ->', request);
@@ -15,7 +17,7 @@ chrome.runtime.onMessage.addListener(
 
     if (request === 'request-data') {
       sendResponse(store.get('data'));
-    }
+    } 
 
     if (request === 'regex message') {
       sendResponse('::(BG) /regex/ was found!');

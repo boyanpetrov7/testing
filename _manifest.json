@@ -6,8 +6,8 @@
   "version": "0.0.1",
 
   "browser_action": {
-    "default_icon": "./images/icon.png",
-    "default_popup": "./popup.html"
+    "default_icon": "build/images/icon.png",
+    "default_popup": "build/popup.html"
   },
   "permissions": [
     "activeTab",
@@ -19,12 +19,12 @@
   ],
   "background": {
     "persistent": false,
-    "scripts": [ "./background.js" ]
+    "scripts": ["node_modules/jquery/dist/jquery.js", "build/background.js"]
   },
   "content_scripts" : [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": [ "./contentscript.js" ]
+      "js": ["node_modules/jquery/dist/jquery.js", "build/contentscript.js"]
     }
   ],
   "commands": {
