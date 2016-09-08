@@ -1,0 +1,47 @@
+{
+  "manifest_version": 2,
+
+  "name": "Test Project",
+  "description": "Testing some stuff",
+  "version": "0.0.1",
+
+  "browser_action": {
+    "default_icon": "build/images/icon.png",
+    "default_popup": "build/popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "notifications",
+    "tabs",
+    "http://*/*", 
+    "https://*/*"
+  ],
+  "background": {
+    "persistent": false,
+    "scripts": ["node_modules/jquery/dist/jquery.js", "build/background.js"]
+  },
+  "content_scripts" : [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["node_modules/jquery/dist/jquery.js", "build/contentscript.js"]
+    }
+  ],
+  "commands": {
+          "_execute_browser_action": {
+            "suggested_key": {
+              "windows": "Ctrl+Shift+Y",
+              "mac": "Command+Shift+Y",
+              "chromeos": "Ctrl+Shift+U",
+              "linux": "Ctrl+Shift+Y"
+            }
+          },
+          "_execute_page_action": {
+            "suggested_key": {
+              "default": "Ctrl+Shift+E",
+              "windows": "Alt+Shift+P",
+              "mac": "Alt+Shift+P"
+            }
+          }
+        }
+}

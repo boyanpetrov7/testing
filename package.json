@@ -1,0 +1,32 @@
+{
+  "name": "getstarted",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "jquery": "^3.1.0",
+    "require": "^2.4.20",
+    "requirejs": "^2.3.1"
+  },
+  "devDependencies": {
+    "browserify": "^13.1.0",
+    "eslint": "^3.4.0",
+    "eslint-config-google": "^0.6.0",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "run-sequence": "^1.2.2",
+    "simple-store": "git+ssh://git@github.com/Bonkasaurus/js_simple-store.git",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  }
+}
