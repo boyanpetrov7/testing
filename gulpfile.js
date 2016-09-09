@@ -16,12 +16,16 @@ gulp.task('clean', function () {
 });
 
 gulp.task('move', ['clean'], function() {
-  gulp.src(['src/ui/*/*.*', 'popup.html', 'src/manifest.json', 'src/contentscript/*.*'])
+  gulp.src(['src/ui/*/*.*', 'popup.html', 'src/manifest.json'])
   .pipe(gulp.dest('build'));
 });
 
 gulp.task('build-background',  function () {
   return bundler('./src/background/background.js', 'build/');
+});
+
+gulp.task('build-contentscript',  function () {
+  return bundler('./src/contentscript/contentscript.js', 'build/');
 });
 
 gulp.task('build-popup',  function () {
@@ -37,6 +41,7 @@ gulp.task('build', function (callback) {
     'move',
     'build-popup',
     'build-background',
+    'build-contentscript',
     'refresh-extensions',
     callback);
 });

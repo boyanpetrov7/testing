@@ -5,13 +5,16 @@ var store = new SimpleStore();
 
 console.log(require('../common/helloworld.js')());
 
+require('./events.js');
+
+
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     console.log('::(BG) request ->', request);
     if (request.data) {
       store.add('data', request.data);
       console.log('::(BG) simple-store data -> ',store.get('data'));
-      store.removeAfter('data', 10000);
+      // store.removeAfter('data', 10000);
       sendResponse({storredData: request.data});
     }
 
@@ -32,7 +35,7 @@ chrome.runtime.onMessage.addListener(
     chrome.tabs.query({active: true}, function (tab) {
       chrome.tabs.executeScript(
         tab[tab.length - 1].id, {
-        code: 'document.body.style.backgroundColor="red"'
+        code: 'document.body.style.backgroundColor="inherit"'
       });
       console.log('::(BG) Sending to tabID ->', tab[tab.length - 1].id);
       chrome.tabs.sendMessage(tab[tab.length - 1].id, {action: 'do-something'}, function (response) {
@@ -40,6 +43,18 @@ chrome.runtime.onMessage.addListener(
       });
     });   
   }
+});
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.type === 'get-url') {
+      console.log('::(BG) get-url selector -> ', request.input);
+      chrome.tabs.query({active: true}, function (tab) {
+        chrome.tabs.sendMessage(tab[tab.length - 1].id, {action: 'grab-href', selector: request.input}, function (response) {
+          console.log('::(BG) selector ' + request.input + ' with href(s): ', response);
+        });
+      });
+    }
 });
 
 chrome.tabs.onActivated.addListener(function (tab) {

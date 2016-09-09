@@ -10078,6 +10078,9 @@ return jQuery;
 'use strict';
 
 var $ = require('jquery');
+require('./vendor/login.js');
+
+getData();
 
 $('#set-button').on('click', function(e) {
   e.preventDefault();
@@ -10086,7 +10089,7 @@ $('#set-button').on('click', function(e) {
   var inputData = {
   'client': $('#client').val(),
   'product': $('#product').val()
-  };
+  }; 
  
   // localStorage.clear();
   // localStorage.setItem('clientProductSelection', JSON.stringify(inputData));
@@ -10095,21 +10098,17 @@ $('#set-button').on('click', function(e) {
   //     console.log('::Data saved!');
   // }); 
 
-  chrome.runtime.sendMessage({data: inputData}, function(response) {
-    console.log('::(P) Response from (BG) -> ', response.storredData);
+chrome.runtime.sendMessage({data: inputData}, function(response) {
+  console.log('::(P) Response from (BG) -> ', response.storredData);
   });
 });
 
 $('#get-button').on('click', function(e) {
   e.preventDefault();
   e.stopPropagation();
-
-  chrome.runtime.sendMessage('request-data', function(responseData) {
-    console.log('::(P) Response from (BG) -> ', responseData);
-    $('#client').val(responseData.client);
-    $('#product').val(responseData.product);
-  });
-
+  
+  getData();
+  
   // chrome.storage.sync.get(['client', 'product'], function(details) {
   //     console.log('::Data retrieved', details);
   //     $('#client').val(details.client);
@@ -10117,7 +10116,78 @@ $('#get-button').on('click', function(e) {
   //   });
 });
  
+$('#get-href').on('click', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  chrome.runtime.sendMessage({type: 'get-url', input: $('#css-select').val()});
+});
+
 chrome.runtime.sendMessage({type: 'css-injection'});
+
+function getData() {
+  chrome.runtime.sendMessage('request-data', function (response) {
+    console.log('::(P) Response from (BG) -> ', response);
+    $('#client').val(response.client);
+    $('#product').val(response.product);
+  });
+}
+
+chrome.runtime.sendMessage({ type: 'get-clients' }, function (response) {
+  console.log('::(P) ev:get-clients, response from (BG) ->', response);
+});
+
+chrome.runtime.sendMessage({ type: 'get-products' }, function (response) {
+  console.log('::(P) ev:get-products, response from (BG) ->', response);
+});
+
+},{"./vendor/login.js":3,"jquery":1}],3:[function(require,module,exports){
+'use strict';
+
+var $ = require('jquery');
+
+var $loginBtn = $('#login-btn');
+
+function validate(username, password) {
+  var result = {
+    ok: false,
+    errors: []
+  };
+
+  !username && result.errors.push('Please enter a username');
+  !password && result.errors.push('Please enter a password');
+
+  if (result.errors.length === 0) {
+    result.ok = true;
+  }
+
+  return result;
+}
+
+function submit() {
+  var username = $('#login-username').val(),
+    password = $('#login-password').val(),
+    validation = validate(username, password);
+
+  if (validation.ok) {
+    chrome.runtime.sendMessage({
+      type: 'login',
+      loginDetails: {
+        username: username,
+        password: password
+      }
+    }, function(err, response) {
+      console.log('::(BG/L) response -> ', err, response);
+    });
+  } else {
+    $(validation.errors).each(function(index, error) {
+      console.log(error);
+    });
+  }
+}
+
+$loginBtn.on('click', submit);
+
 },{"jquery":1}]},{},[2])
 
 
