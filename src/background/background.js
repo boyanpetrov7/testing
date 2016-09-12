@@ -5,7 +5,9 @@ var store = new SimpleStore();
 
 console.log(require('../common/helloworld.js')());
 
-require('./events.js');
+store.add('clientID', '36');
+
+require('./events.js')(store);
 
 
 chrome.runtime.onMessage.addListener(
@@ -15,14 +17,17 @@ chrome.runtime.onMessage.addListener(
       store.add('data', request.data);
       console.log('::(BG) simple-store data -> ',store.get('data'));
       // store.removeAfter('data', 10000);
+      console.log('log');
       sendResponse({storredData: request.data});
     }
 
     if (request === 'request-data') {
+      console.log('log');
       sendResponse(store.get('data'));
     } 
 
     if (request === 'regex message') {
+      console.log('log');
       sendResponse('::(BG) /regex/ was found!');
     }
   });
@@ -39,7 +44,7 @@ chrome.runtime.onMessage.addListener(
       });
       console.log('::(BG) Sending to tabID ->', tab[tab.length - 1].id);
       chrome.tabs.sendMessage(tab[tab.length - 1].id, {action: 'do-something'}, function (response) {
-        console.log(response);
+        console.log('::(BG) do-something response -> ', response);
       });
     });   
   }

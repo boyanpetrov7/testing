@@ -8,6 +8,12 @@ var source = require('vinyl-source-stream');
 var clean = require('gulp-clean');
 var runSequence = require('run-sequence');
 var open = require('gulp-open');
+var jasmine = require('gulp-jasmine');
+
+gulp.task('test', function() {
+  return gulp.src('spec/*-spec.js')
+  .pipe(jasmine());
+});
 
 gulp.task('clean', function () {
   return gulp.src('build/*', {
@@ -38,6 +44,7 @@ gulp.task('watch', function () {
 
 gulp.task('build', function (callback) {
   runSequence(
+    // 'test',
     'move',
     'build-popup',
     'build-background',

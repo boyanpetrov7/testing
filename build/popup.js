@@ -10078,7 +10078,29 @@ return jQuery;
 'use strict';
 
 var $ = require('jquery');
-require('./vendor/login.js');
+
+var loginService = require('./services/login.js');
+
+var $loginBtn = $('#login-btn');
+
+$loginBtn.on('click', function () {
+  var username = loginService.get.username(),
+        password = loginService.get.password();
+
+  loginService.login(username, password, function(err, response) {
+    if (err) { 
+      return loginService.notifyFail(); 
+    }
+    console.log('::(P/E) login successful response -> ', response);
+    loginService.notifySuccess();
+  });
+});
+
+},{"./services/login.js":4,"jquery":1}],3:[function(require,module,exports){
+'use strict';
+
+var $ = require('jquery');
+require('./events.js');
 
 getData();
 
@@ -10094,9 +10116,9 @@ $('#set-button').on('click', function(e) {
   // localStorage.clear();
   // localStorage.setItem('clientProductSelection', JSON.stringify(inputData));
 
-  // chrome.storage.sync.set(inputData, function() {
-  //     console.log('::Data saved!');
-  // }); 
+  chrome.storage.sync.set(inputData, function() {
+      console.log('::Data saved!');
+  }); 
 
 chrome.runtime.sendMessage({data: inputData}, function(response) {
   console.log('::(P) Response from (BG) -> ', response.storredData);
@@ -10109,11 +10131,11 @@ $('#get-button').on('click', function(e) {
   
   getData();
   
-  // chrome.storage.sync.get(['client', 'product'], function(details) {
-  //     console.log('::Data retrieved', details);
-  //     $('#client').val(details.client);
-  //     $('#product').val(details.product);
-  //   });
+  chrome.storage.sync.get(['client', 'product'], function(details) {
+      console.log('::Data retrieved', details);
+      $('#client').val(details.client);
+      $('#product').val(details.product);
+    });
 });
  
 $('#get-href').on('click', function(e) {
@@ -10141,54 +10163,76 @@ chrome.runtime.sendMessage({ type: 'get-products' }, function (response) {
   console.log('::(P) ev:get-products, response from (BG) ->', response);
 });
 
-},{"./vendor/login.js":3,"jquery":1}],3:[function(require,module,exports){
+},{"./events.js":2,"jquery":1}],4:[function(require,module,exports){
 'use strict';
 
 var $ = require('jquery');
-
-var $loginBtn = $('#login-btn');
-
-function validate(username, password) {
-  var result = {
-    ok: false,
-    errors: []
-  };
-
-  !username && result.errors.push('Please enter a username');
-  !password && result.errors.push('Please enter a password');
-
-  if (result.errors.length === 0) {
-    result.ok = true;
+  
+  function getUsername() {
+    return $('#login-username').val();
   }
 
-  return result;
-}
-
-function submit() {
-  var username = $('#login-username').val(),
-    password = $('#login-password').val(),
-    validation = validate(username, password);
-
-  if (validation.ok) {
-    chrome.runtime.sendMessage({
-      type: 'login',
-      loginDetails: {
-        username: username,
-        password: password
-      }
-    }, function(err, response) {
-      console.log('::(BG/L) response -> ', err, response);
-    });
-  } else {
-    $(validation.errors).each(function(index, error) {
-      console.log(error);
-    });
+  function getPassword() {
+    return $('#login-password').val();
   }
-}
 
-$loginBtn.on('click', submit);
+  function validate(username, password) {
+    var result = {
+      ok: false,
+      errors: []
+    };
 
-},{"jquery":1}]},{},[2])
+    !username && result.errors.push('Please enter a username');
+    !password && result.errors.push('Please enter a password');
+
+    if (result.errors.length === 0) {
+      result.ok = true;
+    }
+
+    return result;
+  }
+
+  function login(username, password, callback) {
+    var validation = validate(username, password);
+
+    if (validation.ok) {
+      chrome.runtime.sendMessage({
+        type: 'login',
+        loginDetails: {
+          username: username,
+          password: password
+        }
+      }, function(response) {
+        console.log('::(BG/L) error -> ', response.err);
+        console.log('::(BG/L) response -> ', response.msg);
+
+        if (response.err) return callback(response.err);
+
+        callback(null, response.msg);
+      });
+    } else {
+       return callback(validation.errors);
+    }
+  }
+
+  function notifySuccess() {
+    console.log('::(P) Login successful!');
+  }
+
+  function notifyFail() {
+    console.log('::(P) Login failed!');
+  }
+
+module.exports = {
+  login: login,
+  get: {
+    username: getUsername,
+    password: getPassword
+  },
+  notifySuccess: notifySuccess,
+  notifyFail: notifyFail
+};
+},{"jquery":1}]},{},[3])
 
 
 //# sourceMappingURL=popup.js.map

@@ -9,7 +9,7 @@ function loginBackground(loginDetails, callback) {
     })
     .fail(function (response) {
       // fail
-      console.log('Login failed!');
+      console.log('::(BG) Login failed!', response);
       callback(true, response.status);
     });
 }

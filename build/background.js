@@ -10190,7 +10190,9 @@ var store = new SimpleStore();
 
 console.log(require('../common/helloworld.js')());
 
-require('./events.js');
+store.add('clientID', '36');
+
+require('./events.js')(store);
 
 
 chrome.runtime.onMessage.addListener(
@@ -10200,14 +10202,17 @@ chrome.runtime.onMessage.addListener(
       store.add('data', request.data);
       console.log('::(BG) simple-store data -> ',store.get('data'));
       // store.removeAfter('data', 10000);
+      console.log('log');
       sendResponse({storredData: request.data});
     }
 
     if (request === 'request-data') {
+      console.log('log');
       sendResponse(store.get('data'));
     } 
 
     if (request === 'regex message') {
+      console.log('log');
       sendResponse('::(BG) /regex/ was found!');
     }
   });
@@ -10224,7 +10229,7 @@ chrome.runtime.onMessage.addListener(
       });
       console.log('::(BG) Sending to tabID ->', tab[tab.length - 1].id);
       chrome.tabs.sendMessage(tab[tab.length - 1].id, {action: 'do-something'}, function (response) {
-        console.log(response);
+        console.log('::(BG) do-something response -> ', response);
       });
     });   
   }
@@ -10278,41 +10283,52 @@ var loginService = require('./services/login.js');
 var getClientsService = require('./services/getClients.js');
 var getProductsService = require('./services/getProducts.js');
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.type === 'login') {
-      console.log('::(BG) login event triggered -> ', request);
-      loginService.login(request.loginDetails, function (err, response) {
-        if (err) return sendResponse(err, response);
+function Events (store) {
+  chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+      if (request.type === 'login') {
+        console.log('::(BG) login event triggered -> ', request);
+        loginService.login(request.loginDetails, function (err, response) {
+          if (err) return sendResponse({ err: err, msg: response });
 
-        sendResponse(response);
-      });
-    }
-  });
+          sendResponse({ err: null, msg: response});
+        });
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.type === 'get-clients' ) {
-      getClientsService.clients(function (err, response) {
-        if (err) return sendResponse(err, response);
+        return true;
+      }
+    });
 
-        sendResponse(response);
-      });
-    }
-  });
+  chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+      if (request.type === 'get-clients' ) {
+        getClientsService.clients(function (err, response) {
+          if (err) return sendResponse(err);
+          
+          sendResponse(response);
+        });
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.type === 'get-products' ) {
-      var clientID = '36';
-      getProductsService.products(clientID, function (err, response) {
-        if (err) return sendResponse(err, response);
+        return true;
+      }
+    });
 
-        sendResponse(response);
-      });
-    }
-  });
+  chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+      if (request.type === 'get-products' ) {
+        var clientID = store.get('clientID');
+        console.log(clientID);
+        getProductsService.products(clientID, function (err, response) {
+          if (err) return sendResponse(err);
 
+          sendResponse(response);
+        });
+
+        return true;
+      }
+    });
+  
+}
+
+module.exports = Events;
 },{"./services/getClients.js":5,"./services/getProducts.js":6,"./services/login.js":7}],5:[function(require,module,exports){
 'use strict';
 
@@ -10379,7 +10395,7 @@ function loginBackground(loginDetails, callback) {
     })
     .fail(function (response) {
       // fail
-      console.log('Login failed!');
+      console.log('::(BG) Login failed!', response);
       callback(true, response.status);
     });
 }

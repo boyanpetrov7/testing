@@ -1,7 +1,7 @@
 'use strict';
 
 var $ = require('jquery');
-require('./vendor/login.js');
+require('./events.js');
 
 getData();
 
@@ -17,9 +17,9 @@ $('#set-button').on('click', function(e) {
   // localStorage.clear();
   // localStorage.setItem('clientProductSelection', JSON.stringify(inputData));
 
-  // chrome.storage.sync.set(inputData, function() {
-  //     console.log('::Data saved!');
-  // }); 
+  chrome.storage.sync.set(inputData, function() {
+      console.log('::Data saved!');
+  }); 
 
 chrome.runtime.sendMessage({data: inputData}, function(response) {
   console.log('::(P) Response from (BG) -> ', response.storredData);
@@ -32,11 +32,11 @@ $('#get-button').on('click', function(e) {
   
   getData();
   
-  // chrome.storage.sync.get(['client', 'product'], function(details) {
-  //     console.log('::Data retrieved', details);
-  //     $('#client').val(details.client);
-  //     $('#product').val(details.product);
-  //   });
+  chrome.storage.sync.get(['client', 'product'], function(details) {
+      console.log('::Data retrieved', details);
+      $('#client').val(details.client);
+      $('#product').val(details.product);
+    });
 });
  
 $('#get-href').on('click', function(e) {
